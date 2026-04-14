@@ -193,7 +193,6 @@ def fetch_classes(lan_code):
     return jsonify(classes)
 
 
-@login_required
 def fetch_user_fav_prompts():
     result = []
     fav_prompts = UserFavPrompt.query.filter(UserFavPrompt.userID == current_user.id).all()
@@ -210,6 +209,8 @@ def fetch_prompt(class_id, lan_code):
     lan_codes = lan_code.split(',')
 
     if class_id == 'special-user_fav':
+        if not current_user.is_authenticated:
+            return jsonify({"content": [], "message": "login_required"}), 401
         result = fetch_user_fav_prompts()
     else:
         result = []
@@ -302,6 +303,7 @@ def increase_popularity():
         except Exception as e:
             print(e)
             return jsonify({'message': 'error', 'error': str(e)})
+    return jsonify({'message': 'method_not_allowed'}), 405
 
 
 @bp.route('/submit_function', methods=['POST'])
